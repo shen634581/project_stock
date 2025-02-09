@@ -1,0 +1,110 @@
+/* 全局樣式 */
+.body1 {
+    font-family: 'Arial', sans-serif;
+    background-color: #F3F7FA; /* 柔和灰藍色背景 */
+    color: #424242; /* 深灰色文字 */
+    margin: 20px;
+    padding: 20px;
+}
+
+/* 標題樣式 */
+h1 {
+    color: #007bff;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* 表單和篩選區域樣式 */
+.control-panel,
+#loadJsonSection {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    
+}
+
+label {
+    font-weight: bold;
+    color: #555;
+}
+
+/* 按鈕樣式 */
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* 表格樣式 */
+.table-container {
+    overflow-x: auto;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#stockTable {
+    width: 7000px;
+    background-color: #FFFFFF; /* 表格純白背景 */
+    border-collapse: collapse;
+}
+
+#stockTable th,#stockTable td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    vertical-align: middle;
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    /* 文字置中 */
+ 
+}
+
+#stockTable th {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+}
+
+#stockTable tr:nth-child(even) {
+    background-color: #F9F9F9; /* 表格條紋效果 */
+}
+
+#stockTable tr:hover {
+    background-color: #e9ecef;
+}
+
+/* 分頁樣式 */
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.pagination button:hover {
+    background-color: #0056b3;
+}
+

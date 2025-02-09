@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/myall.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .control-panel>div {
+
+
+            box-sizing: border-box;
+            /* 包含內外距，避免溢出 */
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 7000px;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            table-layout: fixed;
+            word-wrap: break-word;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .table-container {
+            max-height: 600px;
+            overflow: auto;
+            border: 1px solid #ddd;
+        }
+
+        .checkbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .checkbox-container label {
+            flex: 0 0 20%;
+            box-sizing: border-box;
+            padding: 5px;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-panel label {
+            margin-right: 5px;
+        }
+
+        .control-panel input,
+        .control-panel select {
+            margin-right: 20px;
+        }
+
+        .hidden-column {
+            display: none;
+        }
+
+        .serch {
+            display: flex;
+            /* 使用flex布局 */
+            align-items: center;
+            /* 垂直居中对齐 */
+        }
+
+        #filterStatus {
+            margin-left: 10px;
+            /* 在筛选条件和搜索框之间添加一些间距 */
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">股票</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="stock copy 3.html">股票總覽</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="stocked.html">已選股票</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link  " href="StockedCompare.html">已選股票對比</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="body1">
+        <h1 class="mb-3">股票</h1>
+
+        <!-- 新增載入 JSON 檔案的區域 -->
+        <div id="loadJsonSection">
+            <label for="jsonFileInput">載入 JSON 檔案：</label>
+            <input type="text" id="jsonFileInput" placeholder="輸入 JSON 檔案名稱，例如 1120.json">
+            <button id="loadJsonButton">載入</button>
+        </div>
+
+        <div class="control-panel ">
+            <div class=" ">
+                <label for="filterOption1">選擇篩選條件：</label>
+                <select id="filterOption1">
+                    <option value="all">全部</option>
+                    <option value="aboveUpper">成交大於布林上軌(20日)</option>
+                    <option value="betweenCenter">成交介於布林中軌(20日)</option>
+                    <option value="belowLower">成交低於布林下軌(20日)</option>
+                    <option value="VolumeChange">成交量增加</option>
+                    <option value="MAUpper">所有均線上</option>
+                </select>
+
+                <label for="filterOption2">選擇第二層篩選條件：</label>
+                <select id="filterOption2">
+                    <option value="">無條件</option>
+                    <option value="aboveUpper">成交大於布林上軌(20日)</option>
+                    <option value="belowLower">成交低於布林下軌(20日)</option>
+                    <option value="VolumeChange">成交量增加</option>
+                    <option value="MAUpper">所有均線上</option>
+                </select>
+            </div>
+
+            <div class="">
+                <label for="per-min">PER 最小值:</label>
+                <input type="number" id="per-min" placeholder="輸入最小值" style="width: 110px;">
+                <label for="per-max">PER 最大值:</label>
+                <input type="number" id="per-max" placeholder="輸入最大值" style="width: 110px;">
+                <button id="filter-per-button">篩選</button>
+            </div>
+
+            <div class="">
+                <label for="month-min">月營收月增加%:</label>
+                <input type="number" id="month-min" placeholder="輸入最小值" style="width: 110px;">
+                <button id="filter-month-button">篩選</button>
+            </div>
+
+
+            <div class="">
+                <label for="year-min">月營收年增加%:</label>
+                <input type="number" id="year-min" placeholder="輸入最小值" style="width: 110px;">
+                <button id="filter-year-button">篩選</button>
+            </div>
+
+            <div class="">
+                <label for="yearly-min">累月營收年增%:</label>
+                <input type="number" id="yearly-min" placeholder="輸入最小值" style="width: 110px;">
+                <button id="filter-yearly-button">篩選</button>
+            </div>
+
+
+            <div class="">
+                <label for="k-min">下影線:</label>
+                <input type="number" id="k-min" placeholder="輸入最小值" style="width: 110px;">
+                <button id="k-min-button">篩選</button>
+            </div>
+
+            <div class="">
+                <label for="volumeIncrease-min">成交增加量%:</label>
+                <input type="number" id="volumeIncrease-min" placeholder="输入最小值" style="width: 110px;">
+                <button id="filter-volume-increase-button">篩選</button>
+            </div>
+
+
+            <div>
+                <label for="rowsPerPage">每頁顯示筆數：</label>
+                <select id="rowsPerPage">
+                    <option value="10">10 筆</option>
+                    <option value="25">25 筆</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <button id="clear-filters-button">清除篩選</button>
+        </div>
+
+
+        <label>
+            <input type="checkbox" id="toggleAllColumns"> 全選/全不選
+        </label>
+        <div id="columnToggle" class="checkbox-container"></div>
+
+        <label>選擇顯示的列：</label>
+        <div id="columnToggle" class="checkbox-container"></div>
+
+        <div class="mb-3 serch">
+            <label for="searchInput">搜尋股票：</label>
+            <input type="text" id="searchInput" placeholder="輸入關鍵字進行搜尋">
+            <div id="filterStatus">當前篩選條件：無</div>
+        </div>
+
+        <div class="table-container">
+            <table id="stockTable" class="mb-2">
+                <thead>
+                    <tr id="tableHeader"></tr>
+                </thead>
+                <tbody id="mydata"></tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <script>
+        let stockData = []; // 用於儲存原始股票數據
+        let headers = []; // 用於儲存表頭
+        let rowsPerPage = 10; // 每頁顯示的行數，預設為 10 筆
+        let currentFilteredData = []; // 用於儲存篩選後的數據
+        let searchQuery = ""; // 搜尋關鍵字
+        let currentPage = 1; // 當前頁面
+        let hiddenColumns = []; // 儲存隱藏列的索引
+        let filterConditions = {
+            per: { min: null, max: null },
+            monthIncrease: null,
+            yearIncrease: null,
+            yearlyIncrease: null,
+            customCondition1: null, // 第一個自定義篩選條件
+            customCondition2: null, // 第二個自定義篩選條件
+            kLine: null, // 下影线筛选条件
+            volumeIncrease: null,// 成交量增加篩選條件
+        };
+        console.log("Script is running!");  // 測試簡單的日誌輸出
+        $(function () {
+            // 初始化當前頁面和篩選後的數據
+            currentPage = 1;
+
+
+            // 初始化頁面時加載數據並顯示
+            showdata(stockData);
+
+            // 監聽 JSON 檔案載入按鈕
+            $("#loadJsonButton").click(function () {
+                const fileName = $("#jsonFileInput").val().trim();
+                if (fileName) {
+                    loadJsonFile(fileName);
+                } else {
+                    alert("請輸入有效的 JSON 檔案名稱！");
+                }
+            });
+            function loadJsonFile(fileName) {
+                $.ajax({
+                    type: "GET",
+                    url: fileName,
+                    dataType: "json",
+                    success: function (data) {
+                        stockData = data;
+                        currentFilteredData = stockData; // 初始為全部數據
+                        showdata(stockData);
+                        // 重置列隱藏狀態
+                        hiddenColumns = [];
+                        $("#columnToggle input[type='checkbox']").prop("checked", true);
+                        $("#toggleAllColumns").prop("checked", true);
+                        $("#tableHeader th").show();
+                        $("#mydata tr td").show();
+                    },
+                    error: function () {
+                        console.log(`無法取得資料: ${fileName}`);
+                        alert(`無法取得資料: ${fileName}`);
+                    }
+                });
+            }
+
+            // 預設載入 1120.json
+            loadJsonFile("1120.json");
+
+            // 監聽 JSON 檔案載入按鈕
+            $("#loadJsonButton").click(function () {
+                const fileName = $("#jsonFileInput").val().trim();
+                if (fileName) {
+                    loadJsonFile(fileName);
+                } else {
+                    alert("請輸入有效的 JSON 檔案名稱！");
+                }
+            });
+
+            // 監聽搜尋輸入框的事件
+            $("#searchInput").on("input", function () {
+                searchQuery = $(this).val().toLowerCase();
+                applyFilter($("#filterOption1").val()); // 根據篩選條件和搜尋重新篩選
+            });
+
+            // 監聽每頁顯示筆數變更事件
+            $("#rowsPerPage").change(function () {
+                rowsPerPage = parseInt($(this).val(), 10);
+                filterAndPaginate(currentPage, currentFilteredData); // 更新資料並重新分頁
+            });
+
+            //監聽篩選條件1的更改
+            $("#filterOption1").on("change", function () {
+                console.log("Filter option changed:", $(this).val());
+                const filterValue = $(this).val(); // 获取选择的筛选条件值
+                updateCustomCondition1(filterValue);
+                if (filterValue === "all") {
+                    // 重置所有筛选条件
+                    filterConditions = {
+                        per: { min: null, max: null },
+                        monthIncrease: null,
+                        yearIncrease: null,
+                        yearlyIncrease: null,
+                        customCondition1: null,
+                        customCondition2: null,
+                        kLine: null,
+                        volumeIncrease: null,
+
+                    };
+                    currentFilteredData = stockData; // 重置为全部数据
+                } else {
+                    applyFilters(); // 应用筛选条件
+                }
+                updateFilterStatus(); // 更新筛选状态
+                filterAndPaginate(1, currentFilteredData); // 重新加载数据
+            });
+
+
+            //監聽篩選條件2的更改
+            $("#filterOption2").on("change", function () {
+                const filterValue = $(this).val(); // 获取选择的筛选条件值
+                updateCustomCondition2(filterValue);
+                if (filterValue === "all") {
+                    // 重置所有筛选条件
+                    filterConditions = {
+                        per: { min: null, max: null },
+                        monthIncrease: null,
+                        yearIncrease: null,
+                        yearlyIncrease: null,
+                        customCondition1: null,
+                        customCondition2: null,
+                        kLine: null,
+                        volumeIncrease: null,
+                    };
+                    currentFilteredData = stockData; // 重置为全部数据
+                } else {
+                    applyFilters(); // 应用筛选条件
+                }
+                updateFilterStatus(); // 更新筛选状态
+                filterAndPaginate(1, currentFilteredData); // 重新加载数据
+            });
+
+            // 监听筛选选项的变化
+            $("#filterOption1, #filterOption2").on("change", function () {
+                const filterValue = $("#filterOption1").val();
+                const filterValue1 = $("#filterOption2").val();
+
+                // 重置筛选条件
+                filterConditions.customCondition1 = null;
+                filterConditions.customCondition2 = null;
+
+                if (filterValue === "all") {
+                    // 重置所有筛选条件
+                    filterConditions = {
+                        per: { min: null, max: null },
+                        monthIncrease: null,
+                        yearIncrease: null,
+                        yearlyIncrease: null,
+                        customCondition1: null,
+                        customCondition2: null,
+                        kLine: null,
+                        volumeIncrease: null,
+                    };
+                    // 清空所有筛选输入框的值
+                    $("#per-min, #per-max, #month-min, #year-min, #k-min, #volumeIncrease-min, #yearly-min ").val("");
+                    currentFilteredData = stockData;
+                } else {
+                    // 更新自定义筛选条件1
+                    updateCustomCondition1(filterValue);
+                }
+
+                if (filterValue1 === "all") {
+                    filterConditions.customCondition2 = null;
+                    currentFilteredData = stockData;
+                } else if (filterValue !== "all") {
+                    // 更新自定义筛选条件2
+                    updateCustomCondition2(filterValue1);
+                }
+
+                applyFilters(); // 应用筛选条件
+                updateFilterStatus(); // 更新筛选状态
+                filterAndPaginate(1, currentFilteredData); // 重新加载数据
+            });
+
+            // PER篩選按鈕的事件處理
+            $("#filter-per-button").on("click", function () {
+                const min = parseFloat($("#per-min").val());
+                const max = parseFloat($("#per-max").val());
+
+                updateFilterRangeCondition("per", isNaN(min) ? null : min, isNaN(max) ? null : max);
+                applyFilters();
+                updateFilterStatus();
+            });
+
+            //MOM 篩選按鈕的事件處理
+            $("#filter-month-button").on("click", function () {
+                const min = parseFloat($("#month-min").val());
+
+                updateFilterCondition("monthIncrease", isNaN(min) ? null : min);
+                applyFilters();
+                updateFilterStatus();
+            });
+
+            //YOY 篩選按鈕的事件處理
+            $("#filter-year-button").on("click", function () {
+                const min = parseFloat($("#year-min").val());
+
+                updateFilterCondition("yearIncrease", isNaN(min) ? null : min);
+                applyFilters();
+                updateFilterStatus();
+            });
+
+            // 监听累月營收年增%筛选按钮的事件处理程序
+            $("#filter-yearly-button").on("click", function () {
+                const min = parseFloat($("#yearly-min").val());
+                updateFilterCondition("yearlyIncrease", isNaN(min) ? null : min);
+                applyFilters();
+                updateFilterStatus();
+            });
+
+            // 监听下影线筛选按钮的事件处理程序
+            $("#k-min-button").on("click", function () {
+                const kMinValue = parseFloat($("#k-min").val());
+                updateFilterCondition("kLine", kMinValue);
+                applyFilters();
+                updateFilterStatus();
+            });
+
+            // 監聽成交增加量%
+            $("#filter-volume-increase-button").on("click", function () {
+                const minVolumeIncrease = parseFloat($("#volumeIncrease-min").val());
+                updateFilterCondition("volumeIncrease", minVolumeIncrease);
+                applyFilters();
+                updateFilterStatus();
+            });
+
+            // 清除所有篩選條件
+            $("#clear-filters-button").on("click", function () {
+                filterConditions = {
+                    per: { min: null, max: null },
+                    monthIncrease: null,
+                    yearIncrease: null,
+                    yearlyIncrease: null,
+                    customCondition1: null,
+                    customCondition2: null,
+                    kLine: null,
+                    volumeIncrease: null,
+                };
+                // 清空所有筛选输入框的值
+                $("#per-min, #per-max, #month-min, #year-min, #k-min, #volumeIncrease-min, #yearly-min ").val("");
+                currentFilteredData = stockData; // 回到初始数据
+                filterAndPaginate(1, currentFilteredData); // 更新表格显示
+                updateFilterStatus(); // 更新筛选状态显示
+            });
+
+            // 全選/全不選複選框功能
+            $("#toggleAllColumns").change(function () {
+                const isChecked = $(this).is(":checked");
+                // 遍歷所有列的複選框，設置為與全選複選框相同的狀態
+                $("#columnToggle input[type='checkbox']").prop("checked", isChecked);
+                // 根據全選狀態顯示或隱藏所有列
+                $("#columnToggle input[type='checkbox']").each(function () {
+                    const columnIndex = $(this).data("column-index");
+                    toggleColumnVisibility(columnIndex, isChecked);
+                });
+
+                // 刷新篩選後的資料並顯示在第一頁
+                filterAndPaginate(1, currentFilteredData); // 強制刷新頁面資料
+            });
+
+            // 個別列的複選框變更時檢查全選複選框狀態
+            $("#columnToggle").on("change", "input[type='checkbox']", function () {
+                const allChecked = $("#columnToggle input[type='checkbox']").length ===
+                    $("#columnToggle input[type='checkbox']:checked").length;
+                $("#toggleAllColumns").prop("checked", allChecked);
+            });
+
+            //儲存
+            $(document).on("click", ".store-button", function () {
+                // 使用 .data() 方法从按钮元素中获取 data-* 属性的值
+                var dataJSON = {};
+                dataJSON["date"] = $(this).data("date");
+                dataJSON["stocknumber"] = $(this).data("stocknumber");
+                dataJSON["stockname"] = $(this).data("stockname");
+                dataJSON["price"] = $(this).data("price");
+                dataJSON["remark"] = $("#filterStatus").text().trim(); // 使用 .text()
+                console.log("存储股票信息：", JSON.stringify(dataJSON));
+
+                $.ajax({
+                    type: "POST",
+                    url: "stock-Create-api.php",
+                    data: JSON.stringify(dataJSON),
+                    dataType: "json",
+                    success: showdata_new,
+                    error: function () {
+                        alert("stock-Create-api.php");
+                    }
+                })
+
+            });
+        });
+
+        //表格渲染
+        function showdata(data) {
+            $("#mydata").empty(); // 清空現有數據
+            $("#tableHeader").empty(); // 清空現有表頭
+            $("#columnToggle").empty(); // 清空列選擇區域
+
+            if (data.length === 0) {
+                $("#mydata").append('<tr><td colspan="36">沒有數據可顯示</td></tr>');
+                return;
+            }
+
+
+            // 处理数据中的双引号
+            data.forEach(item => {
+                Object.keys(item).forEach(key => {
+                    if (typeof item[key] === 'string') {
+                        item[key] = item[key].replace(/^=|\"/g, ''); // 去除前后的双引号
+                    }
+                });
+            });
+            // 處理表頭，包括換行效果
+            headers = Object.keys(data[0]);
+            headers.push("成交變化");  // 添加到表頭
+            headers.push("均線上");  // 添加到表頭
+            headers.push("下影線"); // 添加到表頭
+            headers.push("成交增加量%"); // 添加到表头
+            headers.unshift("儲存"); // 添加到表頭
+            headers.forEach(function (header, index) {
+                // 每 4 個字插入一個 <br> 以實現換行
+                const formattedHeader = header.replace(/(.{4})/g, "$1<br>");
+                // 添加表頭
+                $("#tableHeader").append(`<th>${formattedHeader}</th>`);
+
+                // 添加列選擇的複選框
+                $("#columnToggle").append(`
+            <label>
+                <input type="checkbox" checked data-column-index="${index}"> ${formattedHeader.replace(/<br>/g, "")}
+            </label>`);
+            });
+
+            filterAndPaginate(1, data); // 分頁處理
+
+            // 監聽複選框變更事件以隱藏或顯示列
+            $("#columnToggle input[type='checkbox']").change(function () {
+                const columnIndex = $(this).data('column-index');
+                const isChecked = $(this).is(':checked');
+
+                // 隱藏或顯示對應的列和表頭
+                toggleColumnVisibility(columnIndex, isChecked);
+            });
+
+        }
+
+        // 切換列的顯示/隱藏
+        function toggleColumnVisibility(columnIndex, isChecked) {
+            if (isChecked) {
+                // 如果顯示，從隱藏列表中移除
+                hiddenColumns = hiddenColumns.filter(index => index !== columnIndex);
+            } else {
+                // 如果隱藏，添加到隱藏列表
+                hiddenColumns.push(columnIndex);
+            }
+
+            // 隱藏或顯示對應的列和表頭
+            $(`#tableHeader th:nth-child(${columnIndex + 1})`).toggle(isChecked);
+            $("#mydata tr").each(function () {
+                $(this).find(`td:nth-child(${columnIndex + 1})`).toggle(isChecked);
+            });
+        }
+
+        function filterAndPaginate(page, data) {
+            // 搜索篩選
+            let filteredData = data.filter(item => {
+                return Object.values(item).some(val => val && val.toString().toLowerCase().includes(searchQuery));
+            });
+
+            // 分頁設定
+            const rowsPerPage = parseInt($("#rowsPerPage").val()) || 10;
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const currentData = filteredData.slice(start, end);
+
+            // 清空表格內容
+            $("#mydata").empty();
+            if (currentData.length === 0) {
+                $("#mydata").append('<tr><td colspan="36">无数据符合当前筛选条件</td></tr>');
+                return;
+            }
+            // 渲染資料
+            currentData.forEach(item => {
+                let row = "<tr>";
+
+                headers.forEach(header => {
+                    if (header === "均線上") {
+                        // 處理均線判斷
+                        const 成交 = parseFloat((item["成交"] || "").replace(/,/g, '')) || NaN;
+                        const 五日均線 = parseFloat((item["5日均線(元)"] || "").replace(/,/g, '')) || NaN;
+                        const 十日均線 = parseFloat((item["10日均線(元)"] || "").replace(/,/g, '')) || NaN;
+                        const 月均線 = parseFloat((item["20日均線(元)"] || "").replace(/,/g, '')) || NaN;
+
+                        if (!isNaN(成交) && !isNaN(五日均線) && !isNaN(十日均線) && !isNaN(月均線)) {
+                            const is均線上 = (成交 > 五日均線 && 成交 > 十日均線 && 成交 > 月均線) ? "是" : "否";
+                            row += `<td>${is均線上}</td>`;
+                        } else {
+                            row += "<td>N/A</td>";
+                        }
+
+                    } else if (header === "成交變化") {
+                        // 處理成交變化邏輯
+                        const 成交量欄位 = Object.keys(item).find(key => key.includes("成交量(張)"));
+                        const 成交量 = 成交量欄位 ? parseInt((item[成交量欄位] || "").replace(/,/g, '')) || NaN : NaN;
+                        const 五日均量 = parseFloat((item["5日均量(張)"] || "").replace(/,/g, '')) || NaN;
+                        const 十日均量 = parseFloat((item["10日均量(張)"] || "").replace(/,/g, '')) || NaN;
+
+                        if (!isNaN(成交量) && !isNaN(五日均量) && !isNaN(十日均量)) {
+                            const is成交變化 = (成交量 > 五日均量 && 五日均量 > 十日均量) ? "增加" : "減少";
+                            item["成交變化"] = is成交變化; // 動態添加欄位
+                            row += `<td>${is成交變化}</td>`;
+                        } else {
+                            row += "<td>N/A</td>";
+                        }
+
+                    } else if (header === "下影線") {
+                        const lowestPrice = parseFloat(item["最低價"]) || NaN;
+                        const lastClosePrice = parseFloat(item["昨收"]) || NaN;
+                        const 成交 = parseFloat(item["成交"]) || NaN;
+
+                        let shadowValue = 0;
+                        if (lowestPrice < lastClosePrice) {
+                            shadowValue = (成交 - lowestPrice) / 成交 * 100;
+                        }
+
+                        row += `<td>${shadowValue.toFixed(2)}</td>`;
+
+                    } else if (header === "成交增加量%") {
+                        const volumeIncrease = calculateVolumeIncrease(item);
+                        row += `<td>${volumeIncrease !== undefined ? volumeIncrease.toFixed(2) + '%' : 'N/A'}</td>`;
+
+                    } else if (header === "儲存") {
+                        row += `<td><button class="store-button" data-stocknumber="${item["代號"]}" data-stockname="${item["名稱"]}" data-price="${item["成交"]}" data-date="${item["股價日期"]}">儲存</button></td>`;
+                    }
+                    else {
+                        // 處理一般欄位
+                        row += `<td>${item[header] !== undefined ? item[header] : "N/A"}</td>`;
+                    }
+                });
+
+                row += "</tr>";
+                $("#mydata").append(row);
+            });
+
+
+
+
+            // 更新分頁
+            updatePagination(Math.ceil(filteredData.length / rowsPerPage), page, filteredData);
+            applyHiddenColumns();
+        }
+
+
+        // 更新分頁
+        function updatePagination(totalPages, currentPage, data) {
+            $("#pagination").empty();
+            if (currentPage > 1) {
+                $("#pagination").append(`<button onclick="changePage(${currentPage - 1})">上一頁</button>`);
+            }
+
+            $("#pagination").append(`<span>第 ${currentPage} 頁 / ${totalPages} 頁</span>`);
+
+            if (currentPage < totalPages) {
+                $("#pagination").append(`<button onclick="changePage(${currentPage + 1})">下一頁</button>`);
+            }
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            filterAndPaginate(currentPage, currentFilteredData);
+        }
+
+        // 篩選邏輯 applyFilters 已經定義在範圍內
+        function applyFilters() {
+
+            let filteredData = stockData; // 从当前筛选结果开始
+            // 如果选择了“全部”，则不执行任何筛选，直接显示所有数据
+            if ($("#filterOption1").val() === "all" && $("#filterOption2").val() === "all") {
+                currentFilteredData = stockData; // 重置为全部数据
+            } else {
+                // 应用PER范围筛选
+                if (filterConditions.per.min !== null || filterConditions.per.max !== null) {
+                    filteredData = filteredData.filter(item => {
+                        const perValue = parseFloat(item["PER"]) || NaN;
+                        return (
+                            (isNaN(filterConditions.per.min) || perValue >= filterConditions.per.min) &&
+                            (isNaN(filterConditions.per.max) || perValue <= filterConditions.per.max)
+                        );
+                    });
+                }
+
+                // 应用月营收增长筛选
+                if (filterConditions.monthIncrease !== null) {
+                    filteredData = filteredData.filter(item => {
+                        const monthIncrease = parseFloat(item["單月營收月增(%)"]) || NaN;
+                        return !isNaN(monthIncrease) && monthIncrease >= filterConditions.monthIncrease;
+                    });
+                }
+
+                // 应用年营收增长筛选
+                if (filterConditions.yearIncrease !== null) {
+                    filteredData = filteredData.filter(item => {
+                        const yearIncrease = parseFloat(item["單月營收年增(%)"]) || NaN;
+                        return !isNaN(yearIncrease) && yearIncrease >= filterConditions.yearIncrease;
+                    });
+                }
+
+                // 应用累月營收年增%筛选
+                if (filterConditions.yearlyIncrease !== null) {
+                    filteredData = filteredData.filter(item => {
+                        const yearlyIncrease = parseFloat(item["累月營收年增(%)"]) || NaN;
+                        return !isNaN(yearlyIncrease) && yearlyIncrease >= filterConditions.yearlyIncrease;
+                    });
+                }
+
+                // 应用下影线筛选条件
+                if (filterConditions.kLine !== null) {
+                    filteredData = filteredData.filter(item => {
+                        const lowestPrice = parseFloat(item["最低價"]) || NaN;
+                        const lastClosePrice = parseFloat(item["昨收"]) || NaN;
+                        const 成交 = parseFloat(item["成交"]) || NaN;
+
+                        if (isNaN(lowestPrice) || isNaN(lastClosePrice) || isNaN(成交)) return false;
+
+                        let shadowValue = 0;
+                        if (lowestPrice < lastClosePrice) {
+                            shadowValue = (成交 - lowestPrice) / 成交 * 100;
+                        }
+                        return shadowValue >= filterConditions.kLine;
+                    });
+                }
+
+                // 应用成交增加量%筛选
+                if (filterConditions.volumeIncrease !== null) {
+                    filteredData = filteredData.filter(item => {
+                        const volumeIncrease = calculateVolumeIncrease(item);
+                        return volumeIncrease >= filterConditions.volumeIncrease;
+                    });
+                }
+
+                // 应用自定义筛选条件1
+                if (filterConditions.customCondition1) {
+                    filteredData = filteredData.filter(filterConditions.customCondition1);
+                }
+
+                // 应用自定义筛选条件2
+                if (filterConditions.customCondition2) {
+                    filteredData = filteredData.filter(filterConditions.customCondition2);
+                }
+
+                if ($("#filterOption1").val() === "all") {
+                    // 如果选择了“全部”，则不执行任何筛选，直接显示所有数据
+                    currentFilteredData = stockData;
+                } else {
+                    // 应用其他筛选条件
+                    currentFilteredData = stockData; // 从原始数据开始
+                    if (filterConditions.customCondition1) {
+                        currentFilteredData = currentFilteredData.filter(filterConditions.customCondition1);
+                    }
+                    if (filterConditions.customCondition2) {
+                        currentFilteredData = currentFilteredData.filter(filterConditions.customCondition2);
+                    }
+                }
+            }
+
+            // 应用搜索筛选
+            if (searchQuery) {
+                filteredData = filteredData.filter(item => {
+                    return Object.values(item).some(val => val && val.toString().toLowerCase().includes(searchQuery.toLowerCase()));
+                });
+            }
+
+            // 更新筛选后的资料
+            currentFilteredData = filteredData;
+            // 更新表格显示筛选结果
+            filterAndPaginate(1, currentFilteredData);
+        }
+
+
+        // 更新篩選條件範圍值
+        function updateFilterRangeCondition(key, min, max) {
+            if (key in filterConditions && typeof filterConditions[key] === "object") {
+                filterConditions[key].min = min;
+                filterConditions[key].max = max;
+            } else {
+                console.warn(`未知的篩選條件範圍: ${key}`);
+            }
+        }
+
+        // 更新筛选条件的值
+        function updateFilterCondition(key, value) {
+            if (key in filterConditions) {
+                filterConditions[key] = value;
+            } else {
+                console.warn(`未知的筛选条件: ${key}`);
+            }
+        }
+
+        // 根據篩選條件過濾資料 布林軌道、成交量變化
+        function applyFilter(filterValue) {
+            let filteredData = stockData.filter(item => {
+                const per = parseFloat(item["PER"]);
+                const monthIncrease = parseFloat(item["單月營收月增(%)"]);
+                const yearIncrease = parseFloat(item["單月營收年增(%)"]);
+
+                // 檢查 PER 條件
+                if (filterConditions.per.min !== null && (isNaN(per) || per < filterConditions.per.min)) return false;
+                if (filterConditions.per.max !== null && (isNaN(per) || per > filterConditions.per.max)) return false;
+
+                // 檢查月營收增長條件
+                if (filterConditions.monthIncrease !== null && (isNaN(monthIncrease) || monthIncrease < filterConditions.monthIncrease)) return false;
+
+                // 檢查年營收增長條件
+                if (filterConditions.yearIncrease !== null && (isNaN(yearIncrease) || yearIncrease < filterConditions.yearIncrease)) return false;
+
+                // 自定義條件
+                if (filterConditions.customCondition1 && !filterConditions.customCondition1(item)) return false;
+
+                return true;
+            });
+
+            if (filterValue === "aboveUpper") {
+                filteredData = stockData.filter(item => {
+                    const 成交 = item["成交"] ? parseFloat(String(item["成交"]).replace(/,/g, '')) : 0;
+                    const 上軌 = item["布林上軌(20日)"] ? parseFloat(String(item["布林上軌(20日)"]).replace(/[↗↘]/g, '').trim().replace(/,/g, '')) : NaN;
+                    return !isNaN(上軌) && parseFloat(成交) > 上軌 * 0.995;
+                });
+            } else if (filterValue === "betweenCenter") {
+                filteredData = stockData.filter(item => {
+                    const 成交 = item["成交"] ? parseFloat(String(item["成交"]).replace(/,/g, '')) : 0;
+                    const 最低價 = item["最低價"] ? parseFloat(String(item["最低價"]).replace(/,/g, '')) : 0;
+                    const 中軌 = item["布林中軌(20日)"] ? parseFloat(String(item["布林中軌(20日)"]).replace(/[↗↘]/g, '').trim().replace(/,/g, '')) : NaN;
+                    return !isNaN(中軌) && !isNaN(最低價) && parseFloat(成交) > 中軌 && 中軌 > parseFloat(最低價);
+                });
+            } else if (filterValue === "belowLower") {
+                filteredData = stockData.filter(item => {
+                    const 成交 = item["最低價"] ? parseFloat(String(item["最低價"]).replace(/,/g, '')) : 0;
+                    const 下軌 = item["布林下軌(20日)"] ? parseFloat(String(item["布林下軌(20日)"]).replace(/[↗↘]/g, '').trim().replace(/,/g, '')) : 0;
+                    return parseFloat(成交) < 下軌 * 1.005;
+                });
+            } else if (filterValue === "VolumeChange") {
+                filteredData = stockData.filter(item => {
+                    const 成交量欄位 = Object.keys(item).find(key => key.includes("成交量(張)"));
+                    const 成交量 = 成交量欄位
+                        ? parseInt(String(item[成交量欄位]).replace(/,/g, ''), 10)
+                        : NaN;
+
+                    const 五日均量 = item["5日均量(張)"]
+                        ? parseFloat(String(item["5日均量(張)"]).replace(/,/g, ''))
+                        : NaN;
+
+                    const 十日均量 = item["10日均量(張)"]
+                        ? parseFloat(String(item["10日均量(張)"]).replace(/,/g, ''))
+                        : NaN;
+
+                    return !isNaN(成交量) && !isNaN(五日均量) && !isNaN(十日均量) && (成交量 > 五日均量 && 五日均量 > 十日均量);
+                });
+            } else if (filterValue === "MAUpper") {
+                filteredData = stockData.filter(item => {
+                    const 成交 = item["成交"] ? parseFloat(String(item["成交"]).replace(/,/g, '')) : NaN;
+                    const 五日均線 = item["5日均線(元)"] ? parseFloat(String(item["5日均線(元)"]).replace(/,/g, '')) : NaN;
+                    const 十日均線 = item["10日均線(元)"] ? parseFloat(String(item["10日均線(元)"]).replace(/,/g, '')) : NaN;
+                    const 月均線 = item["20日均線(元)"] ? parseFloat(String(item["20日均線(元)"]).replace(/,/g, '')) : NaN;
+                    return !isNaN(成交) && !isNaN(五日均線) && !isNaN(十日均線) && !isNaN(月均線) && (成交 > 五日均線 && 成交 > 十日均線 && 成交 > 月均線);
+                });
+            } else {
+                // 未指定篩選條件，返回全部數據
+                filteredData = stockData;
+            }
+
+            currentFilteredData = filteredData;
+            filterAndPaginate(1, filteredData);
+        }
+
+
+        //更新第一個自定義篩選條件
+        function updateCustomCondition1(filterValue) {
+            console.log("Updating custom condition for:", filterValue);
+            if (filterValue === "all") {
+                filterConditions.customCondition1 = null;
+            } else {
+                if (filterValue === "aboveUpper") {
+                    filterConditions.customCondition1 = item => {
+                        const 成交 = parseFloat(item["成交"]) || 0;
+                        const 上軌 = parseFloat(item["布林上軌(20日)"]) || NaN;
+                        return !isNaN(上軌) && 成交 > 上軌 * 0.995;
+                    };
+                } else if (filterValue === "betweenCenter") {
+                    filterConditions.customCondition1 = item => {
+                        const 成交 = parseFloat(item["成交"]) || 0;
+                        const 布林中軌 = parseFloat(item["布林中軌(20日)"]) || NaN;
+                        const 最低價 = parseFloat(item["最低價"]) || 0;
+
+                        return 成交 > 布林中軌 && 布林中軌 > 最低價;
+                    };
+                } else if (filterValue === "belowLower") {
+                    filterConditions.customCondition1 = item => {
+                        const 成交 = parseFloat(item["最低價"]) || 0;
+                        const 下軌 = parseFloat(item["布林下軌(20日)"]) || 0;
+                        return 成交 < 下軌 * 1.005;
+                    };
+                } else if (filterValue === "VolumeChange") {
+                    filterConditions.customCondition1 = item => {
+                        const 成交量欄位 = Object.keys(item).find(key => key.includes("成交量(張)"));
+                        const 成交量 = 成交量欄位
+                            ? parseInt(String(item[成交量欄位]).replace(/,/g, ''), 10)
+                            : NaN;
+                        const 五日均量 = parseFloat(item["5日均量(張)"] || "0") || NaN;
+                        const 十日均量 = parseFloat(item["10日均量(張)"] || "0") || NaN;
+                        return !isNaN(成交量) && !isNaN(五日均量) && !isNaN(十日均量) && (成交量 > 五日均量 && 五日均量 > 十日均量);
+                    };
+                } else if (filterValue === "MAUpper") {
+                    filterConditions.customCondition1 = item => {
+                        const 成交 = parseFloat(item["成交"]) || NaN;
+                        const 五日均線 = parseFloat(item["5日均線(元)"]) || NaN;
+                        const 十日均線 = parseFloat(item["10日均線(元)"]) || NaN;
+                        const 月均線 = parseFloat(item["20日均線(元)"]) || NaN;
+                        return !isNaN(成交) && !isNaN(五日均線) && !isNaN(十日均線) && !isNaN(月均線) && (成交 > 五日均線 && 成交 > 十日均線 && 成交 > 月均線);
+                    };
+                }
+            }
+        }
+        //更新第二個自定義篩選條件
+        function updateCustomCondition2(filterValue) {
+            if (filterValue === "") {
+                filterConditions.customCondition2 = null;// 先清除之前的条件
+            } else {
+                if (filterValue === "aboveUpper") {
+                    filterConditions.customCondition2 = item => {
+                        const 成交 = parseFloat(item["成交"]) || 0;
+                        const 上軌 = parseFloat(item["布林上軌(20日)"]) || NaN;
+                        return !isNaN(上軌) && 成交 > 上軌 * 0.995;
+                    };
+                } else if (filterValue === "belowLower") {
+                    filterConditions.customCondition2 = item => {
+                        const 成交 = parseFloat(item["最低價"]) || 0;
+                        const 下軌 = parseFloat(item["布林下軌(20日)"]) || 0;
+                        return 成交 < 下軌 * 1.005;
+                    };
+                } else if (filterValue === "VolumeChange") {
+                    filterConditions.customCondition2 = item => {
+                        const 成交量欄位 = Object.keys(item).find(key => key.includes("成交量(張)"));
+                        const 成交量 = 成交量欄位
+                            ? parseInt(String(item[成交量欄位]).replace(/,/g, ''), 10)
+                            : NaN;
+                        const 五日均量 = parseFloat(item["5日均量(張)"] || "0") || NaN;
+                        const 十日均量 = parseFloat(item["10日均量(張)"] || "0") || NaN;
+                        return !isNaN(成交量) && !isNaN(五日均量) && !isNaN(十日均量) && (成交量 > 五日均量 && 五日均量 > 十日均量);
+                    };
+                } else if (filterValue === "MAUpper") {
+                    filterConditions.customCondition2 = item => {
+                        const 成交 = parseFloat(item["成交"]) || NaN;
+                        const 五日均線 = parseFloat(item["5日均線(元)"]) || NaN;
+                        const 十日均線 = parseFloat(item["10日均線(元)"]) || NaN;
+                        const 月均線 = parseFloat(item["20日均線(元)"]) || NaN;
+                        return !isNaN(成交) && !isNaN(五日均線) && !isNaN(十日均線) && !isNaN(月均線) && (成交 > 五日均線 && 成交 > 十日均線 && 成交 > 月均線);
+                    };
+                };
+            }
+        }
+
+        function updateFilterStatus() {
+            let statusText = "條件：";
+            let hasConditions = false;
+
+
+            // 检查自定义筛选条件1
+            if (filterConditions.customCondition1 !== null) {
+                const selectedOption = $("#filterOption1").val();
+                switch (selectedOption) {
+                    case "aboveUpper":
+                        statusText += "上軌";
+                        break;
+                    case "betweenCenter":
+                        statusText += "中軌";
+                        break;
+                    case "belowLower":
+                        statusText += "下軌";
+                        break;
+                    case "VolumeChange":
+                        statusText += "成交量增加";
+                        break;
+                    case "MAUpper":
+                        statusText += "所有均線上";
+                        break;
+                }
+                hasConditions = true;
+            }
+            // 检查自定义筛选条件2
+            if (filterConditions.customCondition2 !== null) {
+                const selectedOption = $("#filterOption1").val();
+                switch (selectedOption) {
+                    case "aboveUpper":
+                        statusText += "上軌";
+                        break;
+                    case "betweenCenter":
+                        statusText += "中軌";
+                        break;
+                    case "belowLower":
+                        statusText += "下軌";
+                        break;
+                    case "VolumeChange":
+                        statusText += "成交量增加";
+                        break;
+                    case "MAUpper":
+                        statusText += "所有均線上";
+                        break;
+                }
+                hasConditions = true;
+            }
+
+            if (filterConditions.per.min !== null || filterConditions.per.max !== null) {
+                statusText += `, PER ${filterConditions.per.min !== null ? ` : ${filterConditions.per.min}` : ""} ${filterConditions.per.max !== null ? `- ${filterConditions.per.max}` : ""}`;
+                hasConditions = true;
+            }
+            if (filterConditions.monthIncrease !== null) {
+                statusText += `, MOM: ${filterConditions.monthIncrease}`;
+                hasConditions = true;
+            }
+            if (filterConditions.yearIncrease !== null) {
+                statusText += `, YOY: ${filterConditions.yearIncrease}`;
+                hasConditions = true;
+            }
+            if (filterConditions.kLine !== null) {
+                statusText += `, K線: ${filterConditions.kLine}`;
+                hasConditions = true;
+            }
+
+            if (filterConditions.volumeIncrease !== null) {
+                statusText += `, Vol%: ${filterConditions.volumeIncrease}`;
+                hasConditions = true;
+            }
+
+           
+            if (filterConditions.yearlyIncrease !== null) {
+                statusText += `, YTD%: ${filterConditions.yearlyIncrease}`;
+                hasConditions = true;
+            }
+                // Add other conditions as needed
+
+                if (!hasConditions) {
+                    statusText = "无";
+                }
+
+                $("#filterStatus").text(statusText);
+            }
+
+            // 定义 calculateVolumeIncrease 函数
+            function calculateVolumeIncrease(item) {
+                const 成交量欄位 = Object.keys(item).find(key => key.includes("成交量(張)"));
+                const 成交量 = 成交量欄位
+                    ? parseInt(String(item[成交量欄位]).replace(/,/g, ''), 10)
+                    : NaN;
+                const 五日均量 = parseFloat((item["5日均量(張)"] || "").replace(/[^\d.-]/g, '')) || 0;
+                const 十日均量 = parseFloat((item["10日均量(張)"] || "").replace(/[^\d.-]/g, '')) || 0;
+                let 一个月日均成交 = item["一個月日均成交張數(張)"] ? parseFloat((item["一個月日均成交張數(張)"] || "").replace(/[^\d.-]/g, '')) : 0;
+                if (item["一個月日均成交張數(張)"] && item["一個月日均成交張數(張)"].toString().includes('萬')) {
+                    一个月日均成交 *= 10000; // 如果包含“万”，则乘以10000转换为实际张数
+                }
+                // 检查分母是否为0，避免除以0的情况
+                if (十日均量 === 0 || 一个月日均成交 === 0) {
+                    return 0; // 如果分母为0，则直接返回0
+                }
+
+                if (成交量 > 五日均量 && 成交量 > 十日均量 && 成交量 > 一个月日均成交) {
+                    if (十日均量 > 一个月日均成交) {
+                        return ((成交量 / 一个月日均成交) * 100);
+                    } else {
+                        return ((成交量 / 十日均量) * 100);
+                    }
+                } else {
+                    return 0;
+                }
+            }
+
+
+            // 根據已隱藏的列重新應用隱藏狀態
+            function applyHiddenColumns() {
+                hiddenColumns.forEach(function (columnIndex) {
+                    // 隱藏表頭
+                    $(`#tableHeader th:nth-child(${columnIndex + 1})`).hide();
+                    // 隱藏每一行的對應列
+                    $("#mydata tr").each(function () {
+                        $(this).find(`td:nth-child(${columnIndex + 1})`).hide();
+                    });
+                });
+            }
+
+            function showdata_new(data) {
+                console.log(data);
+                if (data.state) {
+                    alert(data.message);
+
+                } else {
+                    alert(data.message);
+                }
+            }
+
+
+
+
+    </script>
+</body>
+
+</html>

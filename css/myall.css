@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Long+Cang&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Long+Cang&family=Zhi+Mang+Xing&display=swap');
+
+/* 字型 */
+.wf1{
+    font-family: "Zhi Mang Xing", cursive;
+    font-optical-sizing: auto;
+}
+.wf2{
+    font-family: "Long Cang", cursive;
+    font-optical-sizing: auto;
+}
+
+/* 字型粗細 */
+.fw-100{
+    font-weight: 100;
+}
+.fw-200{
+    font-weight: 200;
+}
+.fw-300{
+    font-weight: 300;
+}
+.fw-400{
+    font-weight: 400;
+}
+.fw-500{
+    font-weight: 500;
+}
+.fw-600{
+    font-weight: 600;
+}
+.fw-700{
+    font-weight: 700;
+}
+.fw-800{
+    font-weight: 800;
+}
+.fw-900{
+    font-weight: 900;
+}
+
+/* 顏色 */
+:root{
+    --mycolor01:#b3aadb;
+    --mycolor02:#c72b4c;
+    --mycolor03:#b3fabd;
+    --mycolor04:#f3fabd;
+    --mycolor05:#06f0bf;
+    --mycolor06:#000000;
+    --mycolor07:#a211db8f;
+    --mycolor08:#9b84c7c5;
+    --mycolor09:#ffffff;
+    --mycolor10:#73bbddfd;
+    --mycolor11:#ffffff;
+    --mycolor12:#E5A6A8; /* 玫瑰金 */
+    --mycolor13:#8B4513;/* 深紅色  */
+    --mycolor14:#d2691e80;/* 焦糖色 */
+    --mycolor15:#F4A460;/* 土黃色 */
+    --mycolor16:#A0522D;/* 紅棕色 */
+    --mycolor17:#FFF5E1;/* 奶油色 */
+    --mycolor18:#004d00;/* 深綠色 */
+    --mycolor19:#F5F5DC;/* 淡米色 */
+}
+
+/* 背景顏色 */
+.bg-color01{
+    background-color: var(--mycolor01);
+}
+.bg-color02{
+    background-color: var(--mycolor02);
+}
+.bg-color03{
+    background-color: var(--mycolor03);
+}
+.bg-color04{
+    background-color: var(--mycolor04);
+}
+.bg-color05{
+    background-color: var(--mycolor08);
+}
+.bg-color06{
+    background-color: var(--mycolor19);/* 淡米色 */
+}
+.bg-color07{
+    background-color: var( --mycolor17)/* 奶油色 */
+}
+.bg-color08{
+    background-color: var( --mycolor14)/* 焦糖色 */
+}
+
+/* 按鈕 */
+.btn01{ /* 按鈕會變化 */
+    padding: 5px 10px;
+    background-color: var(--mycolor01);
+    border-radius: 5px;/* 導圓角 */
+    margin-right: 10px;/* 每個格子之間距離 */
+    box-shadow: 2px 2px 5px 2px var(--mycolor06); /* 陰影大小調整 水平 垂直 模糊 擴展 陰影的顏色 */
+    text-decoration:none; /* 取消底線 */
+
+}
+.btn01:hover{
+    background-color: var(--mycolor03);
+    border-radius: 5px;/* 導圓角 */
+    margin-right: 10px;/* 每個格子之間距離 */
+    box-shadow: 2px 2px 5px 2px var(--mycolor06);
+   
+    font-style: 20px;
+}
+.btn02{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 3px;
+    padding-right: 3px;
+    background-color: var(--mycolor05);
+    
+    border-radius: 5px;/* 導圓角 */
+    text-decoration:none; /* 取消底線 */
+    text-align:center;
+    box-shadow: 2px 2px 5px 2px var(--mycolor06);
+}
+.btn03{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 3px;
+    padding-right: 3px;
+    background-color: var(--mycolor09);
+    
+    border-radius: 5px;/* 導圓角 */
+    text-decoration:none; /* 取消底線 */
+    text-align:center; /* 文字對齊 */
+    box-shadow: 2px 2px 5px 2px var(--mycolor06);
+    
+   
+}
+.btn04{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 3px;
+    padding-right: 3px;
+    background-color: var(--mycolor12); /* 玫瑰金 */
+    
+    border-radius: 5px;/* 導圓角 */
+    text-decoration:none; /* 取消底線 */
+    text-align:center; /* 文字對齊 */
+    box-shadow: 2px 2px 5px 2px var(--mycolor06);
+    
+   
+}
+
+
+/* 捲簾功能 start*/
+.box {
+    position: relative;
+    overflow: hidden;
+}
+.box .roller {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(92, 92, 92, 0.4);
+    left: 0;
+    top: -100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.8;
+}
+.box:hover .roller {
+    top: 0;
+    transition: top 2s;
+}
+/* 捲簾功能 end*/
+
+
+/* 自顏色 */
+.world-col02{
+    color: var(--mycolor06);
+}
+.text-col01{
+    color: var(--mycolor01);
+}
+.text-col02{
+    color: var(--mycolor07);
+    text-align:center;
+}
+.text-col03{
+    color: var(--mycolor08);
+}
+
+/* 區塊盒子 */
+.mybox01{
+    width: 100px; 
+    height: 30px;
+    border:rgb(30, 126, 140) 3px solid ;
+    padding: 0px;
+    
+}
+.mybord01{
+    
+    border:rgb(30, 126, 140) 2px solid ;
+    padding: 2px;
+    
+
+}
+
+/* 圖片置中 */
+.bg-center{
+    background-position: center center; 
+    background-size:cover;
+    /* 背景圖滿版和不重疊 */
+}
+.bg-center1{
+    background-position: center center; 
+    background-size:100% 100%;
+    /* 背景圖滿版和不重疊 */
+}
+/* 時間軸由上到下 */
+.timeline-section {
+    position: relative;
+}
+
+.timeline-section::before {
+    position: absolute;
+    content: "";
+    top: 10px;
+    width: 8px;
+    bottom: 10px;
+    background-color: aqua;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.timeline-section-pointer {
+
+    position: relative;
+
+}
+
+.timeline-section-pointer::before {
+    position: absolute;
+    content: "";
+    top: 10px;
+    width: 20px;
+    height: 20px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px, solid, var(--mycolor10);
+
+}
+
+.timeline-section-pointer:hover::before {
+    width: 26px;
+    height: 26px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50%;
+    border: 5px solid var(--mycolor05);
+}

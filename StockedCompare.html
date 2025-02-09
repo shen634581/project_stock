@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/myall.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">股票</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link " href="stock copy 3.html">股票總覽</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="stocked.html">已選股票</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active " href="StockedCompare.html">已選股票對比</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container my-5">
+        <div id="loadJsonSection" class="mb-3">
+            <label for="jsonFileInput">載入 JSON 檔案：</label>
+            <input type="text" id="jsonFileInput" placeholder="輸入 JSON 檔案名稱，例如 1225.json">
+            <button id="loadJsonButton">載入</button>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-lg">
+                    <div class="card-body">
+                        <table class="table table-striped table-bordered table-rwd text-center">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>股票日期</th>
+                                    <th>股票代碼</th>
+                                    <th>股票名稱</th>
+                                    <th>股票價格</th>
+                                    <th>篩選備註</th>
+                                    <th>股票價差</th>
+                                </tr>
+                            </thead>
+                            <tbody id="datalist" class=" ">
+                                <tr>
+                                    <td data-th="Id">001</td>
+                                    <td data-th="股票日期">001</td>
+                                    <td data-th="股票代碼">001</td>
+                                    <td data-th="股票名稱">美式咖啡</td>
+                                    <td data-th="股票價格">65</td>
+                                    <td data-th="篩選備註">1</td>
+                                    <td data-th="股票價差">1</td>
+                                    <td data-th="儲存時間">202408050205</td>
+                                    <td><button class="btn btn-warning " data-id=" 07" id="btn_update">更新</button>
+                                        <button class="btn btn-danger ms-3" data-id="' + item.Id + ' "
+                                            id="btn_delete">刪除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <script>
+        var myCustomData = [];
+        $(function() {
+            loadStockData(); // 调用 loadStockData 函数
+        });
+
+        function loadStockData() {
+            $.ajax({
+                type: "GET",
+                url: "stock-Read-api.php",
+                dataType: "json",
+                success: showdata_read,
+                error: function() {
+                    alert("error-stock-Read-api.php");
+                }
+            });
+        }
+
+        $(function () {
+            // 绑定按钮点击事件
+            $('#loadJsonButton').click(function() {
+                var fileName = $('#jsonFileInput').val(); // 从输入框获取文件名
+                if (!fileName) {
+                    alert('請輸入JSON檔案名稱');
+                    return;
+                }
+
+                // 加载指定的JSON文件
+                $.ajax({
+                    type: "GET",
+                    url: fileName, // 使用用户输入的文件名
+                    dataType: "json",
+                    success: function (jsonData) {
+                        myCustomData = jsonData; // 将加载的JSON数据存储在 myCustomData 变量中
+                        loadStockData(); // 加载 stock-Read-api.php 的数据
+                    },
+                    error: function () {
+                        alert("Error loading " + fileName);
+                    }
+                });
+            });
+        });
+
+
+        function showdata_read(data) {
+                console.log("从 stock-Read-api.php 读取的数据:", data);
+
+                $("#datalist").empty();
+                data.data.forEach(function (item) {
+                    // 检查 1225.json 中是否有匹配的 名稱
+                    var match = myCustomData.find(function (customItem) {
+            return customItem.名稱 === item.StockName;
+            
+        });
+
+                    if (match) {
+                        // console.log("找到匹配项:", match);
+                                    // 计算股票價差
+                        var priceDifference = ((match.成交 - item.Price)/item.Price*100).toFixed(2);
+                        var priceDifferenceClass = '';
+                        
+                        if (priceDifference > 0) {
+                            priceDifferenceClass = 'text-danger'; // 红色
+                        } else if (priceDifference < 0) {
+                            priceDifferenceClass = 'text-success'; // 绿色
+                        } else {
+                            priceDifferenceClass = 'text-black'; // 黑色
+                        }
+                        var priceDifferenceText = priceDifference === 0 ? '0' : (priceDifference > 0 ? '+' + priceDifference : priceDifference);
+
+                        // 如果匹配，执行你的操作，例如输出或添加到表格
+                        var strHTML = '<tr>' +
+                    '<td data-th="Id">' + item.Id + '</td>' +
+                    '<td data-th="股票日期">' + item.Stockdate + '</td>' +
+                    '<td data-th="股票代碼">' + item.StockNum + '</td>' +
+                    '<td data-th="股票名稱">' + item.StockName + '</td>' +
+                    '<td data-th="股票價格">' + item.Price + '</td>' +
+                    '<td data-th="篩選備註">' + item.Remark + '</td>' +
+                    '<td data-th="股票價差"></td>'+
+                    '</tr>' +
+                    '<tr>' +
+                    '<td data-th="Id">' + item.Id + '</td>' +
+                    '<td data-th="股票日期" class="text-danger">' + match.股價日期 + '</td>' +
+                    '<td data-th="股票代碼">' + item.StockNum + '</td>' +
+                    '<td data-th="股票名稱">' + match.名稱 + '</td>' +
+                    '<td data-th="股票價格">' + match.成交 + '</td>' +
+                    '<td data-th="篩選備註"></td>' +
+                    '<td data-th="股票價差" class="' + priceDifferenceClass + '">' + priceDifferenceText + '</td>' + // 应用颜色类
+                    '</tr>';
+            $("#datalist").append(strHTML);
+                    }
+                });
+            
+
+            $("#datalist #btn_delete").click(function () {
+                //傳遞id至後端api 執行刪除功能
+                var dataJSON = {};
+                dataJSON["id"] = $(this).data("id");
+                console.log(JSON.stringify(dataJSON));
+
+                $.ajax({
+                    type: "POST",
+                    url: "stock-delete-api.php",
+                    data: JSON.stringify(dataJSON),
+                    dataType: "json",
+                    success: showdata_delete,
+                    error: function () {
+                        alert("error-stock-delete-api.php");
+                    }
+                });
+
+            });
+
+            // 绑定更新按钮事件
+            $("#datalist #btn_update").click(function () {
+                var id = $(this).data('id');
+                // 确保选择器正确地选择了输入框
+                // 使用 closest 和 find 来选择 .remark-input 输入框
+                var $input = $(this).closest('tr').find('.remark-input');
+                var remark = $input.val(); // 获取输入框的值
+                console.log("Button ID:", id);
+                console.log("Input Value:", remark); // 输出输入框的值
+                if (remark === undefined) {
+                    console.error("Remark input value is undefined.");
+                }
+                updateRemark(id, remark);
+            });
+
+        }
+
+        function showdata_delete(data) {
+            console.log(data);
+            if (data.state) {
+                alert(data.message);
+                reloadData();
+            } else {
+                alert(data.message);
+            }
+        }
+
+    </script>
+</body>
+
+</html>
